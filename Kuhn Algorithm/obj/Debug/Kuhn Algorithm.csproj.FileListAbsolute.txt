@@ -1,0 +1,6 @@
+C:\Users\Vladimir\Desktop\Kuhn-Algorithm\Kuhn Algorithm\bin\Debug\Kuhn_Algorithm.exe
+C:\Users\Vladimir\Desktop\Kuhn-Algorithm\Kuhn Algorithm\bin\Debug\Kuhn_Algorithm.pdb
+C:\Users\Vladimir\Desktop\Kuhn-Algorithm\Kuhn Algorithm\obj\Debug\Kuhn Algorithm.csprojAssemblyReference.cache
+C:\Users\Vladimir\Desktop\Kuhn-Algorithm\Kuhn Algorithm\obj\Debug\Kuhn Algorithm.csproj.CoreCompileInputs.cache
+C:\Users\Vladimir\Desktop\Kuhn-Algorithm\Kuhn Algorithm\obj\Debug\Kuhn_Algorithm.exe
+C:\Users\Vladimir\Desktop\Kuhn-Algorithm\Kuhn Algorithm\obj\Debug\Kuhn_Algorithm.pdb
