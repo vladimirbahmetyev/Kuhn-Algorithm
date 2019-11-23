@@ -7,44 +7,43 @@ namespace Kuhn_Algorithm
     
     internal class KuhnAlgorithm
     {
-        private int[] _mt;
+        private int[] _currentMatching;
         private bool[] _used;
 
         public KuhnAlgorithm()
         {
             _used = new bool[0];
-            _mt = new int[0];
+            _currentMatching = new int[0];
         }
 
-        private bool try_kuhn(int v, List<int>[] g)
+        private bool DepthFirstSearch(int currentNode, IReadOnlyList<List<int>> reb)
         {
-            if (_used[v]) return false;
-            _used[v] = true;
-            for (var i = 0; i < g[v].Count; ++i)
+            if (_used[currentNode]) return false;
+            _used[currentNode] = true;
+            for (var checkingNodeIndex = 0; checkingNodeIndex < reb[currentNode].Count; ++checkingNodeIndex)
             {
-                var to = g[v][i];
-                if (_mt[to] != -1 && !try_kuhn(_mt[to], g)) continue;
-                _mt[to] = v;
+                var checkingNode = reb[currentNode][checkingNodeIndex];
+                if (_currentMatching[checkingNode] != -1 && !DepthFirstSearch(_currentMatching[checkingNode], reb)) continue;
+                _currentMatching[checkingNode] = currentNode;
                 return true;
             }
-
             return false;
         }
         
         public List<(int, int)> findMaxMatchingInGraph(int n, int k, List<int>[] reb)
         {
-            _mt = Enumerable.Repeat(-1, k).ToArray();
-            for (var i = 0; i < n; ++i)
+            _currentMatching = Enumerable.Repeat(-1, k).ToArray();
+            for (var currentNode = 0; currentNode < n; ++currentNode)
             {
                 _used = Enumerable.Repeat(false, n).ToArray();
-                try_kuhn(i, reb);
+                DepthFirstSearch(currentNode, reb);
             }
             
             var result = new List<(int,int)>();
-            for (var i = 0; i < k; ++i)
-                if (_mt[i] != -1)
+            for (var checkingMatchIndex = 0; checkingMatchIndex < k; ++checkingMatchIndex)
+                if (_currentMatching[checkingMatchIndex] != -1)
                 {
-                    result.Add((_mt[i] + 1, i + 1));
+                    result.Add((_currentMatching[checkingMatchIndex] + 1, checkingMatchIndex + 1));
                 }
             return result;
         }
@@ -55,7 +54,7 @@ namespace Kuhn_Algorithm
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("Hello world!");
+            var kuhnObg = new KuhnAlgorithm();
         }
     }
 }
