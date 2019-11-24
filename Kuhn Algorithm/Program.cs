@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Kuhn_Algorithm
@@ -130,21 +131,57 @@ namespace Kuhn_Algorithm
         }
     }
     
-    internal static class Program
+    internal class Program
     {
         public static void Main()
         {
-            var testGraphGen = new GraphGenerator(10,10);
-            var testGraph = testGraphGen.GetNext();
-            var kuhnObg = new KuhnAlgorithm();
-            var result = kuhnObg.FindMaxMatchingInGraph(testGraph.Item1, testGraph.Item2, testGraph.Item3);
-            var valueTuples = result.ToList();
-            for (var i = 0; i < valueTuples.Count; i++)
+            testDependenceFromNodes();
+            /*for (int i = 0; i < 10; i++)
             {
-                Console.Write(valueTuples.ElementAt(i).Item1);
-                Console.Write("-");
-                Console.WriteLine(valueTuples.ElementAt(i).Item2);
-            }
+                TestDependenceFromRebs();    
+            }*/
         }
+
+        public static void TestDependenceFromRebs()
+        {
+            var kuhnObg = new KuhnAlgorithm();
+            IEnumerable<(int, TimeSpan)> dependingFromRebs = new (int, TimeSpan)[0];
+            var testGraphGen = new GraphGenerator(200,200);
+            for (var i = 0; i < 10; i++)
+            {
+                var testGraph = testGraphGen.GetNext();
+                var timer = new Stopwatch();
+                timer.Start();
+                var result = kuhnObg.FindMaxMatchingInGraph(testGraph.Item1, testGraph.Item2, testGraph.Item3);
+                timer.Stop();
+                dependingFromRebs = dependingFromRebs.Append((CountGraphRebs(testGraph.Item3), timer.Elapsed));
+                /*Console.WriteLine($"Count of rebs = {dependingFromRebs.Last().Item1}, time = {dependingFromRebs.Last().Item2}");*/
+            }
+
+            var temp = dependingFromRebs.Min(x => x.Item1);
+            var tempTime = dependingFromRebs.Where(x => x.Item1 == temp).First().Item2;
+            Console.WriteLine($"{temp} time : {tempTime}");
+            temp = dependingFromRebs.Max(x => x.Item1);
+            tempTime = dependingFromRebs.First(x => x.Item1 == temp).Item2;
+            Console.WriteLine($"{temp} time : {tempTime}");
+        }
+
+        public static void testDependenceFromNodes()
+        {
+            for (var i = 1; i <= 10; i++)
+            {
+                var timer = new Stopwatch();
+                var tempGraphGen = new GraphGenerator(i * 100, i * 100);
+                var testGraph = tempGraphGen.GetNext();
+                var kuhnObj = new KuhnAlgorithm();
+                timer.Start();
+                kuhnObj.FindMaxMatchingInGraph(testGraph.Item1, testGraph.Item2, testGraph.Item3);
+                timer.Stop();
+                Console.WriteLine($"elapsated time for try number {i} is {timer.Elapsed}");
+            }   
+        }
+
+        private static int CountGraphRebs(IEnumerable<List<int>> arrayRebs) => arrayRebs.Aggregate(0, (acc, rebsList) => acc + rebsList.Count);
+        
     }
 }
