@@ -130,20 +130,20 @@ namespace Kuhn_Algorithm
         }
     }
     
-    internal class Program
+    internal static class Program
     {
-        public static void Main(string[] args)
+        public static void Main()
         {
             var testGraphGen = new GraphGenerator(10,10);
             var testGraph = testGraphGen.GetNext();
             var kuhnObg = new KuhnAlgorithm();
             var result = kuhnObg.FindMaxMatchingInGraph(testGraph.Item1, testGraph.Item2, testGraph.Item3);
-            for (var i = 0; i < result.Count(); i++)
+            var valueTuples = result.ToList();
+            for (var i = 0; i < valueTuples.Count; i++)
             {
-                Console.Write(result.ElementAt(i).Item1);
+                Console.Write(valueTuples.ElementAt(i).Item1);
                 Console.Write("-");
-                Console.WriteLine(result.ElementAt(i).Item2);
-                
+                Console.WriteLine(valueTuples.ElementAt(i).Item2);
             }
         }
     }
