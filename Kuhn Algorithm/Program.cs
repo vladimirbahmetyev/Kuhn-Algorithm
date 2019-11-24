@@ -135,27 +135,27 @@ namespace Kuhn_Algorithm
     {
         public static void Main()
         {
-            testDependenceFromNodes();
-            /*for (int i = 0; i < 10; i++)
+            TestDependenceFromNodes();
+            /*for (var i = 0; i < 3; i++)
             {
                 TestDependenceFromRebs();    
             }*/
         }
 
-        public static void TestDependenceFromRebs()
+        private static void TestDependenceFromRebs()
         {
             var kuhnObg = new KuhnAlgorithm();
             IEnumerable<(int, TimeSpan)> dependingFromRebs = new (int, TimeSpan)[0];
-            var testGraphGen = new GraphGenerator(200,200);
+            var testGraphGen = new GraphGenerator(600,600);
             for (var i = 0; i < 10; i++)
             {
                 var testGraph = testGraphGen.GetNext();
                 var timer = new Stopwatch();
                 timer.Start();
-                var result = kuhnObg.FindMaxMatchingInGraph(testGraph.Item1, testGraph.Item2, testGraph.Item3);
+                kuhnObg.FindMaxMatchingInGraph(testGraph.Item1, testGraph.Item2, testGraph.Item3);
                 timer.Stop();
                 dependingFromRebs = dependingFromRebs.Append((CountGraphRebs(testGraph.Item3), timer.Elapsed));
-                /*Console.WriteLine($"Count of rebs = {dependingFromRebs.Last().Item1}, time = {dependingFromRebs.Last().Item2}");*/
+                Console.WriteLine($"Count of rebs = {dependingFromRebs.Last().Item1}, time = {dependingFromRebs.Last().Item2}");
             }
 
             var temp = dependingFromRebs.Min(x => x.Item1);
@@ -166,16 +166,16 @@ namespace Kuhn_Algorithm
             Console.WriteLine($"{temp} time : {tempTime}");
         }
 
-        public static void testDependenceFromNodes()
+        private static void TestDependenceFromNodes()
         {
             for (var i = 1; i <= 10; i++)
             {
                 var timer = new Stopwatch();
-                var tempGraphGen = new GraphGenerator(i * 100, i * 100);
-                var testGraph = tempGraphGen.GetNext();
+                var tempGraphGen = new GraphGenerator(i * 100, 100);
+                var (item1, item2, lists) = tempGraphGen.GetNext();
                 var kuhnObj = new KuhnAlgorithm();
                 timer.Start();
-                kuhnObj.FindMaxMatchingInGraph(testGraph.Item1, testGraph.Item2, testGraph.Item3);
+                kuhnObj.FindMaxMatchingInGraph(item1, item2, lists);
                 timer.Stop();
                 Console.WriteLine($"elapsated time for try number {i} is {timer.Elapsed}");
             }   
