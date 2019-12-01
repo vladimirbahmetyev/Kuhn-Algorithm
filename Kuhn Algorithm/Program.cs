@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 
 namespace Kuhn_Algorithm
@@ -129,56 +130,104 @@ namespace Kuhn_Algorithm
             
             return (_countOfFirstPart, _countOfSecondPart, rebList);
         }
+
+        public (int, int, List<int>[]) GetNextAlt()
+        {
+            var rebsList = new List<int>[_countOfFirstPart];
+            for (var i = 0; i < _countOfFirstPart; i++)
+            {
+                rebsList[i] = new List<int> {i % _countOfSecondPart, (i + 1) % _countOfSecondPart};
+            }
+
+            if (_countOfFirstPart < _countOfSecondPart - 1)
+            {
+                for (var i = _countOfFirstPart + 1; i < _countOfSecondPart; i++)
+                {
+                    rebsList[i % _countOfFirstPart].Add(i);
+                }
+            }
+
+            var numberOfAdditionalRebs = _random.Next(0, _countOfFirstPart * _countOfSecondPart);
+            
+            for (var i = 0; i < numberOfAdditionalRebs; i++)
+            {
+                var leftNode = _random.Next(0, _countOfFirstPart - 1);
+                var rightNode = _random.Next(0, _countOfSecondPart - 1);
+                if(!rebsList[leftNode].Contains(rightNode))
+                    rebsList[leftNode].Add(rightNode);
+            }
+
+            return (_countOfFirstPart, _countOfSecondPart, rebsList);
+        }
     }
     
-    internal class Program
+    internal static class Program
     {
         public static void Main()
         {
-            TestDependenceFromNodes();
-            /*for (var i = 0; i < 3; i++)
+            //Проверка для оценки O(n1m)
+            //Прогрев CPU
+            for (var i = 0; i < 8; i++)
             {
-                TestDependenceFromRebs();    
-            }*/
+                TestDependenceFromRebs(1000, 1000, 7);
+            }
+            
+            //Проверка зависимости от m
+            var testResult = TestDependenceFromRebs(1000, 1000, 7);
+            var resultString= "";
+            
+            foreach (var VARIABLE in testResult)
+            {
+                double tempDouble = VARIABLE.Item1;
+                var tempString = $"{tempDouble.ToString(CultureInfo.InvariantCulture).Replace(",",".")}," +
+                                 $"{VARIABLE.Item2.TotalMilliseconds.ToString(CultureInfo.InvariantCulture).Replace(",",".")}";
+                resultString += "{"+ tempString +"},";
+            }
+            Console.WriteLine(resultString);
+            
+            //Проверка зависимости от кол-ва вершин в левой доле
+            var firstPartTime = "";
+            for (var n1 = 100; n1 < 1600; n1 += 300)
+            {
+                double nTemp = n1;
+                var tempTime = TestDependenceFromNodes(n1, 2000).TotalMilliseconds.ToString(CultureInfo.InvariantCulture).Replace(",",".");
+                firstPartTime += "{" + nTemp.ToString(CultureInfo.InvariantCulture).Replace(",", ".") + "," + tempTime+ "},";
+            }
+
+            Console.WriteLine(firstPartTime);
         }
 
-        private static void TestDependenceFromRebs()
+        private static (int, TimeSpan)[] TestDependenceFromRebs(int firstPartCount, int secondPartCount, int graphCount)
         {
             var kuhnObg = new KuhnAlgorithm();
             IEnumerable<(int, TimeSpan)> dependingFromRebs = new (int, TimeSpan)[0];
-            var testGraphGen = new GraphGenerator(600,600);
-            for (var i = 0; i < 10; i++)
+            var testGraphGen = new GraphGenerator(firstPartCount,secondPartCount);
+            var timer = new Stopwatch();
+            for (var i = 0; i < graphCount; i++)
             {
-                var testGraph = testGraphGen.GetNext();
-                var timer = new Stopwatch();
+                var testGraph = testGraphGen.GetNextAlt();
                 timer.Start();
                 kuhnObg.FindMaxMatchingInGraph(testGraph.Item1, testGraph.Item2, testGraph.Item3);
                 timer.Stop();
                 dependingFromRebs = dependingFromRebs.Append((CountGraphRebs(testGraph.Item3), timer.Elapsed));
-                Console.WriteLine($"Count of rebs = {dependingFromRebs.Last().Item1}, time = {dependingFromRebs.Last().Item2}");
+                timer.Reset();
             }
 
-            var temp = dependingFromRebs.Min(x => x.Item1);
-            var tempTime = dependingFromRebs.Where(x => x.Item1 == temp).First().Item2;
-            Console.WriteLine($"{temp} time : {tempTime}");
-            temp = dependingFromRebs.Max(x => x.Item1);
-            tempTime = dependingFromRebs.First(x => x.Item1 == temp).Item2;
-            Console.WriteLine($"{temp} time : {tempTime}");
+            /*dependingFromRebs = dependingFromRebs.OrderBy(result => result.Item1);*/
+            
+            return dependingFromRebs.ToArray();
         }
 
-        private static void TestDependenceFromNodes()
+        private static TimeSpan TestDependenceFromNodes(int firstPartCount, int secondPartCount)
         {
-            for (var i = 1; i <= 10; i++)
-            {
-                var timer = new Stopwatch();
-                var tempGraphGen = new GraphGenerator(i * 100, 100);
-                var (item1, item2, lists) = tempGraphGen.GetNext();
-                var kuhnObj = new KuhnAlgorithm();
-                timer.Start();
-                kuhnObj.FindMaxMatchingInGraph(item1, item2, lists);
-                timer.Stop();
-                Console.WriteLine($"elapsated time for try number {i} is {timer.Elapsed}");
-            }   
+            var timer = new Stopwatch();
+            var tempGraphGen = new GraphGenerator(firstPartCount, secondPartCount);
+            var (item1, item2, lists) = tempGraphGen.GetNextAlt();
+            var kuhnObj = new KuhnAlgorithm();
+            timer.Start();
+            kuhnObj.FindMaxMatchingInGraph(item1, item2, lists);
+            timer.Stop();
+            return timer.Elapsed;
         }
 
         private static int CountGraphRebs(IEnumerable<List<int>> arrayRebs) => arrayRebs.Aggregate(0, (acc, rebsList) => acc + rebsList.Count);
