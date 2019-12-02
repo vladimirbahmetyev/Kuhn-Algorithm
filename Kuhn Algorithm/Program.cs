@@ -147,7 +147,7 @@ namespace Kuhn_Algorithm
                 }
             }
 
-            var numberOfAdditionalRebs = _random.Next(0, _countOfFirstPart * _countOfSecondPart);
+            var numberOfAdditionalRebs = _random.Next(0, _countOfFirstPart + _countOfSecondPart);
             
             for (var i = 0; i < numberOfAdditionalRebs; i++)
             {
@@ -167,7 +167,7 @@ namespace Kuhn_Algorithm
         {
             //Проверка для оценки O(n1m)
             //Прогрев CPU
-            for (var i = 0; i < 8; i++)
+            for (var i = 0; i < 10; i++)
             {
                 TestDependenceFromRebs(1000, 1000, 7);
             }
@@ -190,7 +190,7 @@ namespace Kuhn_Algorithm
             for (var n1 = 100; n1 < 1600; n1 += 300)
             {
                 double nTemp = n1;
-                var tempTime = TestDependenceFromNodes(n1, 2000).TotalMilliseconds.ToString(CultureInfo.InvariantCulture).Replace(",",".");
+                var tempTime = TestDependenceFromNodes(n1, 500).TotalMilliseconds.ToString(CultureInfo.InvariantCulture).Replace(",",".");
                 firstPartTime += "{" + nTemp.ToString(CultureInfo.InvariantCulture).Replace(",", ".") + "," + tempTime+ "},";
             }
 
